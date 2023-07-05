@@ -28,7 +28,7 @@ router.put(
   updateById
 );
 
-router.put(
+router.patch(
   "/:contactId/favorite",
   idValidation,
   bodyValidation(updateSchema),
