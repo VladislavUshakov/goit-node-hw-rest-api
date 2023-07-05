@@ -11,27 +11,27 @@ const {
   updateById,
   updateStatusContact,
 } = require("../../controllers/contacts");
-const { addSchema, updateSchema } = require("../../schemas/contact");
+const { joiSchemas } = require("../../models/contact");
 
 router.get("/", getAll);
 
 router.get("/:contactId", idValidation, getById);
 
-router.post("/", bodyValidation(addSchema), add);
+router.post("/", bodyValidation(joiSchemas.addContact), add);
 
 router.delete("/:contactId", idValidation, remove);
 
 router.put(
   "/:contactId",
   idValidation,
-  bodyValidation(updateSchema),
+  bodyValidation(joiSchemas.updateContact),
   updateById
 );
 
 router.patch(
   "/:contactId/favorite",
   idValidation,
-  bodyValidation(updateSchema),
+  bodyValidation(joiSchemas.updateContact),
   updateStatusContact
 );
 
