@@ -19,6 +19,7 @@ const contactSchema = new Schema(
     },
     favorite: {
       type: Boolean,
+      // unique: [true, false],
       default: false,
     },
   },
