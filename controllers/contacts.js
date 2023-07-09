@@ -1,5 +1,5 @@
 const { Contact } = require("../models/contact");
-const { HttpError, cntrlWrapper, modelOwnerValidation } = require("../helpers");
+const { HttpError, cntrlWrapper } = require("../helpers");
 
 const getAll = async (req, res) => {
   const { page = 1, limit = 10, favorite } = req.query;
@@ -25,9 +25,16 @@ const getAll = async (req, res) => {
 const getById = async (req, res) => {
   const { contactId } = req.params;
   const { user } = req;
-  await modelOwnerValidation(user, Contact, contactId);
 
-  const contact = await Contact.findById(contactId, "-createdAt -updatedAt");
+  const contact = await Contact.findOne(
+    { _id: contactId, owner: user._id },
+    "-createdAt -updatedAt"
+  );
+
+  if (!contact) {
+    throw HttpError(404);
+  }
+
   res.json(contact);
 };
 
@@ -40,9 +47,16 @@ const add = async (req, res) => {
 const remove = async (req, res) => {
   const { contactId } = req.params;
   const { user } = req;
-  await modelOwnerValidation(user, Contact, contactId);
 
-  await Contact.findByIdAndRemove(contactId);
+  const contact = await Contact.findOneAndRemove({
+    _id: contactId,
+    owner: user._id,
+  });
+
+  if (!contact) {
+    throw HttpError(404);
+  }
+
   res.json({ message: "contact deleted" });
 };
 
@@ -53,13 +67,20 @@ const updateById = async (req, res) => {
   if (JSON.stringify(body) === "{}") {
     throw HttpError(400, "Missing fields");
   }
-  await modelOwnerValidation(user, Contact, contactId);
 
-  const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
-    new: true,
-  });
+  const contact = await Contact.findOneAndUpdate(
+    { _id: contactId, owner: user._id },
+    body,
+    {
+      new: true,
+    }
+  );
 
-  res.json(updatedContact);
+  if (!contact) {
+    throw HttpError(404);
+  }
+
+  res.json(contact);
 };
 
 const updateStatusContact = async (req, res) => {
@@ -71,16 +92,19 @@ const updateStatusContact = async (req, res) => {
     throw HttpError(400, "Missing field favorite");
   }
 
-  await modelOwnerValidation(user, Contact, contactId);
-
-  const updatedContact = await Contact.findByIdAndUpdate(
-    contactId,
+  const contact = await Contact.findOneAndUpdate(
+    { _id: contactId, owner: user._id },
     { favorite },
     {
       new: true,
     }
   );
-  res.json(updatedContact);
+
+  if (!contact) {
+    throw HttpError(404);
+  }
+
+  res.json(contact);
 };
 
 module.exports = {
