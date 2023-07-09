@@ -14,7 +14,7 @@ const getAll = async (req, res) => {
     filters.favorite = favorite;
   }
 
-  const contactsList = await Contact.find(filters, "", {
+  const contactsList = await Contact.find(filters, "-createdAt -updatedAt", {
     skip,
     limit,
   }).populate("owner", "email subscription");
@@ -73,6 +73,7 @@ const updateById = async (req, res) => {
     body,
     {
       new: true,
+      select: "-createdAt -updatedAt",
     }
   );
 
@@ -97,6 +98,7 @@ const updateStatusContact = async (req, res) => {
     { favorite },
     {
       new: true,
+      select: "-createdAt -updatedAt",
     }
   );
 
