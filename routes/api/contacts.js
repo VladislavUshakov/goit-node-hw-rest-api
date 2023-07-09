@@ -2,37 +2,38 @@ const express = require("express");
 
 const router = express.Router();
 
-const { bodyValidation, idValidation } = require("../../middleware");
 const {
-  getAll,
-  getById,
-  add,
-  remove,
-  updateById,
-  updateStatusContact,
-} = require("../../controllers/contacts");
-const { joiSchemas } = require("../../models/contact");
+  bodyValidation,
+  idValidation,
+  authentication,
+} = require("../../middleware");
 
-router.get("/", getAll);
+const cntrl = require("../../controllers/contacts");
 
-router.get("/:contactId", idValidation, getById);
+const { schemas } = require("../../models/contact");
 
-router.post("/", bodyValidation(joiSchemas.addContact), add);
+router.get("/", authentication, cntrl.getAll);
 
-router.delete("/:contactId", idValidation, remove);
+router.get("/:contactId", authentication, idValidation, cntrl.getById);
+
+router.post("/", authentication, bodyValidation(schemas.addSchema), cntrl.add);
+
+router.delete("/:contactId", authentication, idValidation, cntrl.remove);
 
 router.put(
   "/:contactId",
+  authentication,
   idValidation,
-  bodyValidation(joiSchemas.updateContact),
-  updateById
+  bodyValidation(schemas.updateSchema),
+  cntrl.updateById
 );
 
 router.patch(
   "/:contactId/favorite",
+  authentication,
   idValidation,
-  bodyValidation(joiSchemas.updateContact),
-  updateStatusContact
+  bodyValidation(schemas.updateSchema),
+  cntrl.updateStatusContact
 );
 
 module.exports = router;
