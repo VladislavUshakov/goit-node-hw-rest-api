@@ -11,15 +11,24 @@ describe("Test auth path", () => {
   });
 
   test("'/api/auth/login' POST", async () => {
-    const response = await request(app).post("/api/auth/login").send({
-      email: "user2@email.com",
-      password: "user2",
+    await request(app).post("/api/auth/register").send({
+      email: "jestTestUser@email.com",
+      password: "jestTestUser",
     });
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty("token");
-    expect(response.body).toHaveProperty("user.email");
-    expect(response.body).toHaveProperty("user.subscription");
+    const loginedUser = await request(app).post("/api/auth/login").send({
+      email: "jestTestUser@email.com",
+      password: "jestTestUser",
+    });
+
+    await request(app)
+      .delete("/api/users")
+      .set("Authorization", `Bearer ${loginedUser.body.token}`);
+
+    expect(loginedUser.statusCode).toBe(200);
+    expect(loginedUser.body).toHaveProperty("token");
+    expect(loginedUser.body).toHaveProperty("user.email");
+    expect(loginedUser.body).toHaveProperty("user.subscription");
   });
 
   afterAll(async () => {
