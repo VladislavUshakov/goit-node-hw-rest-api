@@ -5,6 +5,8 @@ const { authentication, bodyValidation, upload } = require("../../middleware");
 const { schemas } = require("../../models/user");
 const cntrl = require("../../controllers/users");
 
+router.delete("/", authentication, cntrl.remove);
+
 router.patch(
   "/subscription",
   authentication,

@@ -7,6 +7,17 @@ const { User } = require("../models/user");
 
 const avatarsDir = puth.join(__dirname, "../", "public", "avatars");
 
+const remove = async (req, res) => {
+  const { _id: id } = req.user;
+  const removedUser = await User.findByIdAndRemove(id);
+
+  if (!removedUser) {
+    throw HttpError(404);
+  }
+
+  res.json({ message: "user deleted" });
+};
+
 const updateSubscription = async (req, res) => {
   const { _id: id } = req.user;
   const { subscription } = req.body;
@@ -47,4 +58,5 @@ const updateAvatar = async (req, res) => {
 module.exports = {
   updateSubscription: cntrlWrapper(updateSubscription),
   updateAvatar: cntrlWrapper(updateAvatar),
+  remove: cntrlWrapper(remove),
 };
