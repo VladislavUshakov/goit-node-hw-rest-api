@@ -1,5 +1,7 @@
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
 const { cntrlWrapper, HttpError } = require("../helpers");
 const { User } = require("../models/user");
@@ -15,8 +17,13 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email, { size: 250 });
 
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
   res.status(201).json({
     user: {
       email: newUser.email,
@@ -34,6 +41,7 @@ const login = async (req, res) => {
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
+
   if (!isValidPassword) {
     throw HttpError(401, "Email or password is wrong");
   }
