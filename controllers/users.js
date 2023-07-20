@@ -2,7 +2,7 @@ const fs = require("node:fs/promises");
 const puth = require("node:path");
 const jimp = require("jimp");
 
-const { HttpError, cntrlWrapper } = require("../helpers");
+const { HttpError, cntrlWrapper, sendEmail } = require("../helpers");
 const { User } = require("../models/user");
 
 const avatarsDir = puth.join(__dirname, "../", "public", "avatars");
@@ -55,8 +55,55 @@ const updateAvatar = async (req, res) => {
   res.json({ avatarURL });
 };
 
+const verifyByToken = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const user = await User.findOneAndUpdate(
+    { verificationToken },
+    { verificationToken: null, verify: true }
+  );
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  res.json({
+    message: "Verification successful",
+  });
+};
+
+const verifyByEmail = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const emailOptions = {
+    to: email,
+    subject: "Verification letter",
+    html: `
+      <a href=http://localhost:3000/api/users/verify/${user.verificationToken} target=”_blank”>Verification link</a>
+    `,
+  };
+
+  await sendEmail(emailOptions);
+
+  res.json({
+    message: "Verification email sent",
+  });
+};
+
 module.exports = {
   updateSubscription: cntrlWrapper(updateSubscription),
   updateAvatar: cntrlWrapper(updateAvatar),
   remove: cntrlWrapper(remove),
+  verifyByToken: cntrlWrapper(verifyByToken),
+  verifyByEmail: cntrlWrapper(verifyByEmail),
 };

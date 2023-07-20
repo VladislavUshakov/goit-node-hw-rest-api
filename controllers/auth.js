@@ -2,8 +2,9 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const crypto = require("node:crypto");
 
-const { cntrlWrapper, HttpError } = require("../helpers");
+const { cntrlWrapper, HttpError, sendEmail } = require("../helpers");
 const { User } = require("../models/user");
 const { SECRET_KEY } = process.env;
 
@@ -18,12 +19,25 @@ const register = async (req, res) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url(email, { size: 250 });
+  const verificationToken = crypto.randomInt(100000, 999999);
 
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+
+  const emailOptions = {
+    to: email,
+    subject: "Verification letter",
+    html: `
+      <a href=http://localhost:3000/api/users/verify/${verificationToken} target=”_blank”>Verification link</a>
+    `,
+  };
+
+  await sendEmail(emailOptions);
+
   res.status(201).json({
     user: {
       email: newUser.email,
