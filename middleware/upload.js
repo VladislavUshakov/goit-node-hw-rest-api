@@ -1,10 +1,10 @@
 const multer = require("multer");
-const puth = require("node:path");
+const path = require("node:path");
 
-const uploadPuth = puth.join(__dirname, "../", "temp");
+const uploadPath = path.join(__dirname, "../", "temp");
 
 const multerConfig = multer.diskStorage({
-  destination: uploadPuth,
+  destination: uploadPath,
   filename: (req, file, cb) => {
     const filename = `${req.user._id}-${file.originalname}`;
     cb(null, filename);
