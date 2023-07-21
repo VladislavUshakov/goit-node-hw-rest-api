@@ -2,7 +2,7 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
-const crypto = require("node:crypto");
+const crypto = require("crypto");
 
 const { cntrlWrapper, HttpError, sendEmail } = require("../helpers");
 const { User } = require("../models/user");
