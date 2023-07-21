@@ -1,11 +1,11 @@
 const fs = require("node:fs/promises");
-const puth = require("node:path");
+const path = require("node:path");
 const jimp = require("jimp");
 
 const { HttpError, cntrlWrapper, sendEmail } = require("../helpers");
 const { User } = require("../models/user");
 
-const avatarsDir = puth.join(__dirname, "../", "public", "avatars");
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const remove = async (req, res) => {
   const { _id: id } = req.user;
@@ -42,8 +42,8 @@ const updateAvatar = async (req, res) => {
   const { path: tempUpload, filename } = req.file;
   const { _id: id } = req.user;
 
-  const resultUpload = puth.join(avatarsDir, filename);
-  const avatarURL = puth.join("avatars", filename);
+  const resultUpload = path.join(avatarsDir, filename);
+  const avatarURL = path.join("avatars", filename);
 
   const avatarImg = await jimp.read(tempUpload);
   await avatarImg.resize(250, 250);
